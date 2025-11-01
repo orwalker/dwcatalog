@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynasty Warriors 8 - Character Roster</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 1.2rem;
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #searchBar {
+            width: 100%;
+            max-width: 600px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            border: 2px solid #ffd700;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        #searchBar:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        #searchBar::placeholder {
+            color: #a0a0a0;
+        }
+
+        .kingdom-section {
+            margin-bottom: 50px;
+        }
+
+        .kingdom-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .kingdom-header h2 {
+            font-size: 2rem;
+            margin-left: 15px;
+        }
+
+        .wei { border-left: 5px solid #4169E1; }
+        .wu { border-left: 5px solid #DC143C; }
+        .shu { border-left: 5px solid #32CD32; }
+        .jin { border-left: 5px solid #9370DB; }
+        .other { border-left: 5px solid #FFD700; }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .character-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-color: #ffd700;
+        }
+
+        .character-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            /* ensure the visible crop anchors to the top so characters' heads are aligned */
+            object-position: top center;
+            /* remove inline image descender gaps */
+            display: block;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .character-info {
+            padding: 15px;
+        }
+
+        .character-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ffd700;
+        }
+
+        .character-weapon {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .character-description {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #d0d0d0;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.5rem;
+            color: #a0a0a0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .character-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dynasty Warriors 8</h1>
+            <p class="subtitle">Ultimate Character Roster</p>
+        </header>
+
+        <div class="search-container">
+            <input type="text" id="searchBar" placeholder="Search characters by name, weapon, or kingdom...">
+        </div>
+
+        <div id="noResults" class="no-results">No characters found matching your search.</div>
+
+        <div class="kingdom-section wei" id="wei-section">
+            <div class="kingdom-header">
+                <h2>⚔️ Kingdom of Wei</h2>
+            </div>
+            <div class="character-grid" id="wei-grid"></div>
+        </div>
+
+        <div class="kingdom-section wu" id="wu-section">
+            <div class="kingdom-header">
+                <h2>🔥 Kingdom of Wu</h2>
+            </div>
+            <div class="character-grid" id="wu-grid"></div>
+        </div>
+
+        <div class="kingdom-section shu" id="shu-section">
+            <div class="kingdom-header">
+                <h2>🛡️ Kingdom of Shu</h2>
+            </div>
+            <div class="character-grid" id="shu-grid"></div>
+        </div>
+
+        <div class="kingdom-section jin" id="jin-section">
+            <div class="kingdom-header">
+                <h2>👑 Kingdom of Jin</h2>
+            </div>
+            <div class="character-grid" id="jin-grid"></div>
+        </div>
+
+        <div class="kingdom-section other" id="other-section">
+            <div class="kingdom-header">
+                <h2>⭐ Other Warriors</h2>
+            </div>
+            <div class="character-grid" id="other-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        const characters = [
+            // Wei Kingdom
+            { name: "Cao Cao", kingdom: "wei", weapon: "Sword", description: "The ambitious warlord and founder of Wei, known for his cunning strategies.", image: "https://www.koei.wiki/images/thumb/f/f3/Caocao-dw8.jpg/300px-Caocao-dw8.jpg" },
+            { name: "Xiahou Dun", kingdom: "wei", weapon: "Podao", description: "A fierce general of Wei, recognizable by his eye patch.", image: "https://www.koei.wiki/images/thumb/5/5c/Xiahoudun-dw8.jpg/300px-Xiahoudun-dw8.jpg" },
+            { name: "Dian Wei", kingdom: "wei", weapon: "Axe", description: "Cao Cao's loyal bodyguard known for immense strength.", image: "https://www.koei.wiki/images/thumb/e/e9/Dianwei-dw8.jpg/300px-Dianwei-dw8.jpg" },
+            { name: "Xu Zhu", kingdom: "wei", weapon: "Club", description: "A powerful warrior with a gentle heart.", image: "https://www.koei.wiki/images/thumb/c/c2/Xuzhu-dw8.jpg/300px-Xuzhu-dw8.jpg" },
+            { name: "Xiahou Yuan", kingdom: "wei", weapon: "Rod", description: "A swift general known for his speed in battle.", image: "https://www.koei.wiki/images/thumb/7/76/Xiahouyuan-dw8.jpg/300px-Xiahouyuan-dw8.jpg" },
+            { name: "Zhang Liao", kingdom: "wei", weapon: "Halberd", description: "One of Wei's Five Generals, feared for his prowess.", image: "https://www.koei.wiki/images/thumb/f/fe/Zhangliao-dw8.jpg/300px-Zhangliao-dw8.jpg" },
+            { name: "Cao Ren", kingdom: "wei", weapon: "Flail", description: "A defensive genius and cousin of Cao Cao.", image: "https://www.koei.wiki/images/thumb/a/a7/Caoren-dw8.jpg/300px-Caoren-dw8.jpg" },
+            { name: "Xu Huang", kingdom: "wei", weapon: "Great Axe", description: "A stalwart defender of Wei territories.", image: "https://www.koei.wiki/images/thumb/9/99/Xuhuang-dw8.jpg/300px-Xuhuang-dw8.jpg" },
+            { name: "Zhang He", kingdom: "wei", weapon: "Claws", description: "An elegant warrior with unique fighting style.", image: "https://www.koei.wiki/images/thumb/4/44/Zhanghe-dw8.jpg/300px-Zhanghe-dw8.jpg" },
+            { name: "Yue Jin", kingdom: "wei", weapon: "Arm Blade", description: "A swift and agile general of Wei.", image: "https://www.koei.wiki/images/thumb/a/a6/Yuejin-dw8.jpg/300px-Yuejin-dw8.jpg" },
+            { name: "Li Dian", kingdom: "wei", weapon: "Wheelblade", description: "A scholarly warrior who values wisdom.", image: "https://www.koei.wiki/images/thumb/5/58/Lidian-dw8.jpg/300px-Lidian-dw8.jpg" },
+            { name: "Cao Pi", kingdom: "wei", weapon: "Twin Swords", description: "Cao Cao's ambitious son and future emperor.", image: "https://www.koei.wiki/images/thumb/3/3e/Caopi-dw8.jpg/300px-Caopi-dw8.jpg" },
+            { name: "Pang De", kingdom: "wei", weapon: "Saber", description: "A fierce warrior who served multiple masters.", image: "https://www.koei.wiki/images/thumb/b/b0/Pangde-dw8.jpg/300px-Pangde-dw8.jpg" },
+            { name: "Cai Wenji", kingdom: "wei", weapon: "Harp", description: "A talented musician and poetess.", image: "https://www.koei.wiki/images/thumb/4/40/Caiwenji-dw8.jpg/300px-Caiwenji-dw8.jpg" },
+            { name: "Jia Xu", kingdom: "wei", weapon: "Shaman Rod", description: "A brilliant strategist with mysterious methods.", image: "https://www.koei.wiki/images/thumb/9/9f/Jiaxu-dw8.jpg/300px-Jiaxu-dw8.jpg" },
+            { name: "Wang Yi", kingdom: "wei", weapon: "Trishula", description: "A warrior driven by vengeance.", image: "https://www.koei.wiki/images/thumb/e/e6/Wangyi-dw8.jpg/300px-Wangyi-dw8.jpg" },
+            { name: "Guo Jia", kingdom: "wei", weapon: "Brush", description: "Cao Cao's most trusted advisor, known for foresight.", image: "https://www.koei.wiki/images/thumb/a/aa/Guojia-dw8.jpg/300px-Guojia-dw8.jpg" },
+            { name: "Zhenji", kingdom: "wei", weapon: "Flute", description: "A graceful beauty with mystical powers.", image: "https://www.koei.wiki/images/thumb/4/41/Zhenji-dw8.jpg/300px-Zhenji-dw8.jpg" },
+
+            // Wu Kingdom
+            { name: "Sun Jian", kingdom: "wu", weapon: "Sword", description: "The Tiger of Jiang Dong, founder of Wu's legacy.", image: "https://www.koei.wiki/images/thumb/5/5d/Sunjian-dw8.jpg/300px-Sunjian-dw8.jpg" },
+            { name: "Sun Shang Xiang", kingdom: "wu", weapon: "Chakram", description: "A spirited princess skilled in combat.", image: "https://www.koei.wiki/images/thumb/2/2a/Sunshangxiang-dw8.jpg/300px-Sunshangxiang-dw8.jpg" },
+            { name: "Sun Ce", kingdom: "wu", weapon: "Tonfas", description: "The Little Conqueror, charismatic leader of Wu.", image: "https://www.koei.wiki/images/thumb/4/42/Sunce-dw8.jpg/300px-Sunce-dw8.jpg" },
+            { name: "Sun Quan", kingdom: "wu", weapon: "Twin Swords", description: "The ruler who solidified Wu's power.", image: "https://www.koei.wiki/images/thumb/2/2c/Sunquan-dw8.jpg/300px-Sunquan-dw8.jpg" },
+            { name: "Zhou Yu", kingdom: "wu", weapon: "Ancient Sword", description: "A brilliant strategist and musician.", image: "https://www.koei.wiki/images/thumb/3/3f/Zhouyu-dw8.jpg/300px-Zhouyu-dw8.jpg" },
+            { name: "Lu Xun", kingdom: "wu", weapon: "Twin Swords", description: "A young genius tactician of Wu.", image: "https://www.koei.wiki/images/thumb/7/75/Luxun-dw8.jpg/300px-Luxun-dw8.jpg" },
+            { name: "Taishi Ci", kingdom: "wu", weapon: "Twin Rods", description: "A honorable warrior with exceptional archery.", image: "https://www.koei.wiki/images/thumb/b/b9/Taishici-dw8.jpg/300px-Taishici-dw8.jpg" },
+            { name: "Lu Meng", kingdom: "wu", weapon: "Halberd", description: "A warrior who transformed into a scholar.", image: "https://www.koei.wiki/images/thumb/6/64/Lumeng-dw8.jpg/300px-Lumeng-dw8.jpg" },
+            { name: "Huang Gai", kingdom: "wu", weapon: "Cudgel", description: "A veteran warrior known for feigned surrender.", image: "https://www.koei.wiki/images/thumb/0/0a/Huanggai-dw8.jpg/300px-Huanggai-dw8.jpg" },
+            { name: "Zhou Tai", kingdom: "wu", weapon: "Curved Sword", description: "A scarred warrior fiercely loyal to Sun Quan.", image: "https://www.koei.wiki/images/thumb/e/e9/Zhoutai-dw8.jpg/300px-Zhoutai-dw8.jpg" },
+            { name: "Ling Tong", kingdom: "wu", weapon: "Nunchaku", description: "An impulsive warrior seeking revenge.", image: "https://www.koei.wiki/images/thumb/a/ac/Lingtong-dw8.jpg/300px-Lingtong-dw8.jpg" },
+            { name: "Gan Ning", kingdom: "wu", weapon: "Throwing Knives", description: "A former pirate turned Wu general.", image: "https://www.koei.wiki/images/thumb/a/a5/Ganning-dw8.jpg/300px-Ganning-dw8.jpg" },
+            { name: "Lu Su", kingdom: "wu", weapon: "Staff", description: "A diplomatic strategist who valued alliances.", image: "https://www.koei.wiki/images/thumb/b/b4/Lusu-dw8.jpg/300px-Lusu-dw8.jpg" },
+            { name: "Xiao Qiao", kingdom: "wu", weapon: "Fans", description: "Zhou Yu's beautiful and spirited wife.", image: "https://www.koei.wiki/images/thumb/7/7c/Xiaoqiao-dw8.jpg/300px-Xiaoqiao-dw8.jpg" },
+            { name: "Da Qiao", kingdom: "wu", weapon: "Twin Fans", description: "Sun Ce's elegant and graceful wife.", image: "https://www.koei.wiki/images/thumb/8/8a/Daqiao-dw8.jpg/300px-Daqiao-dw8.jpg" },
+            { name: "Ding Feng", kingdom: "wu", weapon: "Throwing Spear", description: "A powerful warrior who defended Wu's borders.", image: "https://www.koei.wiki/images/thumb/7/78/Dingfeng-dw8.jpg/300px-Dingfeng-dw8.jpg" },
+            { name: "Han Dang", kingdom: "wu", weapon: "Trident", description: "A veteran general who served three generations.", image: "https://www.koei.wiki/images/thumb/a/a0/Handang-dw8.jpg/300px-Handang-dw8.jpg" },
+            { name: "Zhu Ran", kingdom: "wu", weapon: "Crossbow", description: "A skilled archer and defensive strategist.", image: "https://www.koei.wiki/images/thumb/f/f7/Zhuran-dw8.jpg/300px-Zhuran-dw8.jpg" },
+
+            // Shu Kingdom
+            { name: "Liu Bei", kingdom: "shu", weapon: "Twin Swords", description: "The benevolent founder of Shu, seeking to restore Han.", image: "https://www.koei.wiki/images/thumb/8/85/Liubei-dw8.jpg/300px-Liubei-dw8.jpg" },
+            { name: "Guan Yu", kingdom: "shu", weapon: "Guan Dao", description: "The legendary God of War, brother to Liu Bei.", image: "https://www.koei.wiki/images/thumb/9/99/Guanyu-dw8.jpg/300px-Guanyu-dw8.jpg" },
+            { name: "Zhang Fei", kingdom: "shu", weapon: "Serpent Spear", description: "A fierce warrior with a booming voice.", image: "https://www.koei.wiki/images/thumb/5/5c/Zhangfei-dw8.jpg/300px-Zhangfei-dw8.jpg" },
+            { name: "Zhao Yun", kingdom: "shu", weapon: "Spear", description: "The Dragon of Chang Shan, paragon of loyalty.", image: "https://www.koei.wiki/images/thumb/d/db/Zhaoyun-dw8.jpg/300px-Zhaoyun-dw8.jpg" },
+            { name: "Zhuge Liang", kingdom: "shu", weapon: "Fan", description: "The legendary strategist, master of the elements.", image: "https://www.koei.wiki/images/thumb/3/34/Zhugeliang-dw8.jpg/300px-Zhugeliang-dw8.jpg" },
+            { name: "Ma Chao", kingdom: "shu", weapon: "Spear", description: "A prideful warrior seeking vengeance.", image: "https://www.koei.wiki/images/thumb/c/c3/Machao-dw8.jpg/300px-Machao-dw8.jpg" },
+            { name: "Huang Zhong", kingdom: "shu", weapon: "Bow", description: "An elderly archer with unmatched skill.", image: "https://www.koei.wiki/images/thumb/3/39/Huangzhong-dw8.jpg/300px-Huangzhong-dw8.jpg" },
+            { name: "Jiang Wei", kingdom: "shu", weapon: "Spear", description: "Zhuge Liang's successor who continued his legacy.", image: "https://www.koei.wiki/images/thumb/d/dc/Jiangwei-dw8.jpg/300px-Jiangwei-dw8.jpg" },
+            { name: "Wei Yan", kingdom: "shu", weapon: "Double Voulge", description: "A rebellious but capable general.", image: "https://www.koei.wiki/images/thumb/3/35/Weiyan-dw8.jpg/300px-Weiyan-dw8.jpg" },
+            { name: "Pang Tong", kingdom: "shu", weapon: "Staff", description: "The Fledgling Phoenix, rival to Zhuge Liang.", image: "https://www.koei.wiki/images/thumb/5/55/Pangtong-dw8.jpg/300px-Pangtong-dw8.jpg" },
+            { name: "Yue Ying", kingdom: "shu", weapon: "Bladebow", description: "Zhuge Liang's intelligent and inventive wife.", image: "https://www.koei.wiki/images/thumb/a/a3/Yueying-dw8.jpg/300px-Yueying-dw8.jpg" },
+            { name: "Guan Ping", kingdom: "shu", weapon: "Broad Sword", description: "Guan Yu's adopted son, following his legacy.", image: "https://www.koei.wiki/images/thumb/0/0e/Guanping-dw8.jpg/300px-Guanping-dw8.jpg" },
+            { name: "Bao Sanniang", kingdom: "shu", weapon: "Spinner", description: "A spirited warrior who captures enemies.", image: "https://www.koei.wiki/images/thumb/2/23/Baosanniang-dw8.jpg/300px-Baosanniang-dw8.jpg" },
+            { name: "Guan Suo", kingdom: "shu", weapon: "Nunchaku", description: "Guan Yu's youngest son with acrobatic skills.", image: "https://www.koei.wiki/images/thumb/3/3f/Guansuo-dw8.jpg/300px-Guansuo-dw8.jpg" },
+            { name: "Liu Shan", kingdom: "shu", weapon: "Bench", description: "Liu Bei's son, more peaceful than warlike.", image: "https://www.koei.wiki/images/thumb/7/79/Liushan-dw8.jpg/300px-Liushan-dw8.jpg" },
+            { name: "Guan Yinping", kingdom: "shu", weapon: "Halberd", description: "Guan Yu's daughter, a powerful warrior.", image: "https://www.koei.wiki/images/thumb/f/f6/Guanyinping-dw8.jpg/300px-Guanyinping-dw8.jpg" },
+            { name: "Ma Dai", kingdom: "shu", weapon: "Dual Swords", description: "Ma Chao's cousin, a steadfast general.", image: "https://www.koei.wiki/images/thumb/e/e4/Madai-dw8.jpg/300px-Madai-dw8.jpg" },
+            { name: "Fa Zheng", kingdom: "shu", weapon: "Throwing Knives", description: "A brilliant strategist who served Liu Bei.", image: "https://www.koei.wiki/images/thumb/a/ae/Fazheng-dw8.jpg/300px-Fazheng-dw8.jpg" },
+            { name: "Xing Cai", kingdom: "shu", weapon: "Shield & Sword", description: "Zhang Fei's daughter, a defensive warrior.", image: "https://www.koei.wiki/images/thumb/8/8f/Xingcai-dw8.jpg/300px-Xingcai-dw8.jpg" },
+
+            // Jin Kingdom
+            { name: "Sima Yi", kingdom: "jin", weapon: "Feather Fan", description: "The cunning strategist who founded Jin.", image: "https://www.koei.wiki/images/thumb/b/b1/Simayi-dw8.jpg/300px-Simayi-dw8.jpg" },
+            { name: "Sima Shi", kingdom: "jin", weapon: "Rapier", description: "Sima Yi's eldest son, a calculated leader.", image: "https://www.koei.wiki/images/thumb/7/7e/Simashi-dw8.jpg/300px-Simashi-dw8.jpg" },
+            { name: "Sima Zhao", kingdom: "jin", weapon: "Sword", description: "The ambitious younger son of Sima Yi.", image: "https://www.koei.wiki/images/thumb/2/21/Simazhao-dw8.jpg/300px-Simazhao-dw8.jpg" },
+            { name: "Deng Ai", kingdom: "jin", weapon: "Drill Lance", description: "A brilliant general who conquered Shu.", image: "https://www.koei.wiki/images/thumb/4/42/Dengai-dw8.jpg/300px-Dengai-dw8.jpg" },
+            { name: "Zhong Hui", kingdom: "jin", weapon: "Armillary Sphere", description: "A proud strategist seeking glory.", image: "https://www.koei.wiki/images/thumb/a/a7/Zhonghui-dw8.jpg/300px-Zhonghui-dw8.jpg" },
+            { name: "Xiahou Ba", kingdom: "jin", weapon: "Stalwart Staff", description: "A warrior torn between loyalties.", image: "https://www.koei.wiki/images/thumb/5/5c/Xiahouba-dw8.jpg/300px-Xiahouba-dw8.jpg" },
+            { name: "Wang Yuanji", kingdom: "jin", weapon: "Throwing Daggers", description: "Sima Zhao's sharp-minded wife.", image: "https://www.koei.wiki/images/thumb/c/c0/Wangyuanji-dw8.jpg/300px-Wangyuanji-dw8.jpg" },
+            { name: "Guo Huai", kingdom: "jin", weapon: "Long Sword", description: "A veteran defender of the west.", image: "https://www.koei.wiki/images/thumb/f/f5/Guohuai-dw8.jpg/300px-Guohuai-dw8.jpg" },
+            { name: "Zhuge Dan", kingdom: "jin", weapon: "Staff", description: "A loyal general who resisted the Sima family.", image: "https://www.koei.wiki/images/thumb/2/21/Zhugedan-dw8.jpg/300px-Zhugedan-dw8.jpg" },
+
+            // Other Warriors
+            { name: "Diaochan", kingdom: "other", weapon: "Mace", description: "One of the Four Beauties, caught in political intrigue.", image: "https://www.koei.wiki/images/thumb/3/3b/Diaochan-dw8.jpg/300px-Diaochan-dw8.jpg" },
+            { name: "Lu Bu", kingdom: "other", weapon: "Halberd", description: "The strongest warrior in all the land.", image: "https://preview.redd.it/lu-bu-is-really-pissing-me-off-in-origins-im-fighting-him-v0-mxss88p0otne1.jpeg?auto=webp&s=8592101ebe240f9a4d9d0b9a30dae9ca45ba029b" },
+            { name: "Dong Zhuo", kingdom: "other", weapon: "Sword", description: "A tyrant who seized control of the capital.", image: "https://www.koei.wiki/images/thumb/8/85/Dongzhuo-dw8.jpg/300px-Dongzhuo-dw8.jpg" },
+            { name: "Yuan Shao", kingdom: "other", weapon: "Sword", description: "A prideful warlord of noble lineage.", image: "https://www.koei.wiki/images/thumb/f/ff/Yuanshao-dw8.jpg/300px-Yuanshao-dw8.jpg" },
+            { name: "Zhang Jiao", kingdom: "other", weapon: "Staff", description: "Leader of the Yellow Turban Rebellion.", image: "https://www.koei.wiki/images/thumb/2/27/Zhangjiao-dw8.jpg/300px-Zhangjiao-dw8.jpg" },
+            { name: "Meng Huo", kingdom: "other", weapon: "Pillar", description: "King of the Nanman tribes in the south.", image: "https://www.koei.wiki/images/thumb/b/b1/Menghuo-dw8.jpg/300px-Menghuo-dw8.jpg" },
+            { name: "Zhurong", kingdom: "other", weapon: "Boomerang", description: "Meng Huo's fierce warrior wife.", image: "https://www.koei.wiki/images/thumb/8/8e/Zhurong-dw8.jpg/300px-Zhurong-dw8.jpg" },
+            { name: "Zuo Ci", kingdom: "other", weapon: "Cards", description: "A mysterious Taoist hermit with magical powers.", image: "https://www.koei.wiki/images/thumb/f/fa/Zuoci-dw8.jpg/300px-Zuoci-dw8.jpg" }
+        ];
+
+        function createCharacterCard(character) {
+            return `
+                <div class="character-card" data-name="${character.name.toLowerCase()}" data-weapon="${character.weapon.toLowerCase()}" data-kingdom="${character.kingdom}">
+                    <img src="${character.image}" alt="${character.name}" class="character-image" onerror="this.src='https://via.placeholder.com/250x200/1a1a2e/ffd700?text=${character.name}'">
+                    <div class="character-info">
+                        <div class="character-name">${character.name}</div>
+                        <div class="character-weapon">⚔️ ${character.weapon}</div>
+                        <div class="character-description">${character.description}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCharacters() {
+            const weiGrid = document.getElementById('wei-grid');
+            const wuGrid = document.getElementById('wu-grid');
+            const shuGrid = document.getElementById('shu-grid');
+            const jinGrid = document.getElementById('jin-grid');
+            const otherGrid = document.getElementById('other-grid');
+
+            weiGrid.innerHTML = '';
+            wuGrid.innerHTML = '';
+            shuGrid.innerHTML = '';
+            jinGrid.innerHTML = '';
+            otherGrid.innerHTML = '';
+
+            characters.forEach(character => {
+                const card = createCharacterCard(character);
+                switch(character.kingdom) {
+                    case 'wei':
+                        weiGrid.innerHTML += card;
+                        break;
+                    case 'wu':
+                        wuGrid.innerHTML += card;
+                        break;
+                    case 'shu':
+                        shuGrid.innerHTML += card;
+                        break;
+                    case 'jin':
+                        jinGrid.innerHTML += card;
+                        break;
+                    case 'other':
+                        otherGrid.innerHTML += card;
+                        break;
+                }
+            });
+        }
+
+        function filterCharacters(searchTerm) {
+            const cards = document.querySelectorAll('.character-card');
+            const sections = document.querySelectorAll('.kingdom-section');
+            const noResults = document.getElementById('noResults');
+            let visibleCount = 0;
+
+            searchTerm = searchTerm.toLowerCase().trim();
+
+            cards.forEach(card => {
+                const name = card.dataset.name;
+                const weapon = card.dataset.weapon;
+                const kingdom = card.dataset.kingdom;
+
+                if (name.includes(searchTerm) || weapon.includes(searchTerm) || kingdom.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            sections.forEach(section => {
+                const grid = section.querySelector('.character-grid');
+                const visibleCards = grid.querySelectorAll('.character-card[style="display: block;"], .character-card:not([style*="display: none"])');
+                
+                if (searchTerm === '' || visibleCards.length > 0) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+
+        const searchBar = document.getElementById('searchBar');
+        searchBar.addEventListener('input', (e) => {
+            filterCharacters(e.target.value);
+        });
+
+        renderCharacters();
+    </script>
+</body>
+</html>
